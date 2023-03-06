@@ -9,19 +9,19 @@ If you find our paper helpful in your work, please consider citing:
 ```
 @misc{https://doi.org/10.48550/arxiv.2205.12464,
   doi = {10.48550/ARXIV.2205.12464},
-  
+
   url = {https://arxiv.org/abs/2205.12464},
-  
+
   author = {Rezaei, Yoones and Lee, Stephen},
-  
+
   keywords = {Computer Vision and Pattern Recognition (cs.CV), Artificial Intelligence (cs.AI), Machine Learning (cs.LG), FOS: Computer and information sciences, FOS: Computer and information sciences},
-  
+
   title = {sat2pc: Estimating Point Cloud of Building Roofs from 2D Satellite Images},
-  
+
   publisher = {arXiv},
-  
+
   year = {2022},
-  
+
   copyright = {arXiv.org perpetual, non-exclusive license}
 }
 ```
@@ -32,19 +32,26 @@ In this repository we release the code and data for our paper "sat2pc: Generatin
 
 # Installation
 
-To use this repository you need an environemnt with python 3.7.9. We suggests creating a conda environment with the following command:
+To use this repository you need an environemnt with python 3.7.9. We suggest creating a conda environment with the following command:
 
 ```
-conda create -n "sat2pc" python=3.7.9
+conda env create -f environment.yml
 ```
 
-Next, activate the environemnt and cd to the direcotry of the downloaded repository then run the following command:
+Next, activate the environment:
 
 ```
-python create_conda_environemt.py
+conda activate sat2pc
 ```
 
-This command will install the required packages.
+Finally, run the following commands:
+
+```
+python PyTorchEMD/setup.py install
+python neuralnet-pytorch-master/setup.py install
+```
+
+These commands will install extra required packages.
 
 # Data
 

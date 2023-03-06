@@ -1,0 +1,30 @@
+name: sat2pc
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.7.9
+  - cuda=11.7.0
+  - pip
+
+  - pip:
+      - torch==1.9.0
+      - torchvision==0.10.0
+      - torchaudio==0.9.0
+      - setuptools==59.5.0
+      - pptk==0.1.0
+      - pickle5
+      - matplotlib
+      - sympy==1.10.1
+      - pyransac3d==0.6.0
+      - scipy==1.5.3
+      - laspy==1.7.0
+      - shapely==2.0.1
+      - pyproj==3.1.0
+      - alphashape==1.3.1
+      - PyYAML==5.3.1
+      - imageio==2.9.0
+      - gin-config
+      - tensorboardX
+      - polygonX
+      - scikit-image
