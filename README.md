@@ -44,12 +44,14 @@ Next, activate the environment:
 conda activate sat2pc
 ```
 
-Finally, run the following commands:
+Finally, cd into the repository folder and run the following commands one after another:
 
 ```
 conda install -c "nvidia/label/cuda-11.7.0" cuda
-python PyTorchEMD/setup.py install
-python neuralnet-pytorch-master/setup.py install
+cd PyTorchEMD
+python setup.py install
+cd ../neuralnet-pytorch-master
+python setup.py install
 ```
 
 These commands will install extra required packages.
