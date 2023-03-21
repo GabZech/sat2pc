@@ -72,7 +72,7 @@ def main(args):
     # -------------------------------------------------------------------------- #
     
     params = [p for p in model.parameters() if p.requires_grad]
-    optimizer = torch.optim.Adam(params, lr=args.lr, weight_decay=0) 
+    optimizer = torch.optim.Adam(params, lr=args.lr, weight_decay=0)
     milestones = [200, 800, 1300, 2000]
     lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.3)
     
@@ -152,7 +152,7 @@ if __name__ == "__main__":
     parser.add_argument("--config", default = "./configs/graphx.gin")
     parser.add_argument("--use-cuda", action="store_true")
     parser.add_argument("--dataset", default="sat2lidar")
-    parser.add_argument("--data-dir", default="./datasets/extended_dataset/aggregated/splitted")
+    parser.add_argument("--data-dir")
     parser.add_argument("--ckpt-path")
     parser.add_argument("--results", default="./results/val.res")
     parser.add_argument("--warmup-epochs", type=int, default=1)
@@ -160,10 +160,17 @@ if __name__ == "__main__":
     parser.add_argument("--epochs", type=int, default=2000)
     parser.add_argument("--print-freq", type=int, default=100, help="frequency of printing losses")
     args = parser.parse_args()
-    
-    if args.ckpt_path is None:
-        args.ckpt_path = "./graphx_{}.pth".format(args.dataset)
+
+    # python train.py --config ./configs/sat2pc.gin --dataset sat2pc
+
+    # if args.data_dir is None:
+    #     args.data_dir = f"datasets/2tiles"
     if args.results is None:
         args.results = os.path.join(os.path.dirname(args.ckpt_path), "results.pth")
-    
+        #args.results = f"datasets/2tiles/results/results.res"
+    if args.ckpt_path is None:
+        args.ckpt_path = "./graphx_{}.pth".format(args.dataset)
+        #args.ckpt_path = f"datasets/2tiles/ckpt/graphx_{args.dataset}.pth"
+
+
     main(args)
