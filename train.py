@@ -36,7 +36,7 @@ def get_graphx_model(args):
         if states != None:
             net.load_state_dict(states['model_state_dict'])
         return net, n_points
-    
+
     gin.parse_config_file(config_file)
     net, n_points = create_model()
     return net, n_points
@@ -62,24 +62,25 @@ def main(args):
     print('Args: ', args)
 
     # ---------------------- prepare data loader ------------------------------- #
-    
+
     _d_train = Sat2LidarDataset(image_dir = os.path.join(args.data_dir, os.path.join('train', 'image_filtered')), pc_num = n_points, ann_dir = os.path.join(args.data_dir, os.path.join('train', 'annotation')), mode='train')
     _d_val = Sat2LidarDataset(image_dir = os.path.join(args.data_dir, os.path.join('val', 'image_filtered')), pc_num = n_points, ann_dir = os.path.join(args.data_dir, os.path.join('val', 'annotation')), mode='val')
-    
+
     d_train = torch.utils.data.DataLoader(_d_train, batch_size=batch_size, shuffle=True, num_workers=4, collate_fn=collate_fn)
     d_val = torch.utils.data.DataLoader(_d_val, batch_size=1, shuffle=True, num_workers=4, collate_fn=collate_fn)
-    
+
     # -------------------------------------------------------------------------- #
-    
+
     params = [p for p in model.parameters() if p.requires_grad]
     optimizer = torch.optim.Adam(params, lr=args.lr, weight_decay=0)
     milestones = [200, 800, 1300, 2000]
     lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.3)
-    
+
     start_epoch = 0
     best_eval_loss = 99999999
     prefix, ext = os.path.splitext(args.ckpt_path)
 
+    # LOAD CHECKPOINT
     ckpts = glob.glob(prefix + "_best" + "-*" + ext)
     ckpts.sort(key=lambda x: int(re.search(r"-(\d+){}".format(ext), os.path.split(x)[1]).group(1)))
     if ckpts:
@@ -88,6 +89,7 @@ def main(args):
         del checkpoint
         torch.cuda.empty_cache()
         best_eval_loss = engine.evaluate(model, d_val, device, alpha, False, args)['total_loss']
+        print(f"Loaded {prefix}_best-{ext} with best_eval_loss: {best_eval_loss}")
 
     ckpts = glob.glob(prefix + "-*" + ext)
     ckpts.sort(key=lambda x: int(re.search(r"-(\d+){}".format(ext), os.path.split(x)[1]).group(1)))
@@ -99,17 +101,18 @@ def main(args):
         lr_scheduler.load_state_dict(checkpoint["lr_scheduler"])
         del checkpoint
         torch.cuda.empty_cache()
+        print("Loaded {} with start_epoch: {}".format(ckpts[-1], start_epoch))
 
     since = time.time()
     print("\nalready trained: {} epochs; to {} epochs".format(start_epoch, args.epochs))
-    
+
     # ------------------------------- train ------------------------------------ #
     writer = SummaryWriter()
 
     for epoch in range(start_epoch, args.epochs):
         print("\nepoch: {}".format(epoch + 1))
         best = False
-            
+
         A = time.time()
 
         train_losses = engine.train_one_epoch(model, optimizer, d_train, device, epoch, alpha, args)
@@ -122,7 +125,7 @@ def main(args):
         print('Train loss: ', train_losses)
 
         log_loss_info(writer, 'train', train_losses, epoch)
-        
+
         B = time.time()
         eval_losses = engine.evaluate(model, d_val, device, alpha, False, args)
         B = time.time() - B
@@ -138,17 +141,17 @@ def main(args):
         log_loss_info(writer, 'val', eval_losses, epoch)
 
         engine.save_ckpt(model, optimizer, lr_scheduler, trained_epoch, args.ckpt_path, eval_info=str(eval_losses), best=best)
-    
+
     # -------------------------------------------------------------------------- #
     writer.close()
     print("\ntotal time of this training: {:.2f} s".format(time.time() - since))
     if start_epoch < args.epochs:
         print("already trained: {} epochs\n".format(trained_epoch))
-    
+
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("--gpu", type=str, default='0')
+    parser.add_argument("--gpu", type=str, default='1')
     parser.add_argument("--config", default = "./configs/graphx.gin")
     parser.add_argument("--use-cuda", action="store_true")
     parser.add_argument("--dataset", default="sat2lidar")
@@ -172,5 +175,7 @@ if __name__ == "__main__":
         args.ckpt_path = "./graphx_{}.pth".format(args.dataset)
         #args.ckpt_path = f"datasets/2tiles/ckpt/graphx_{args.dataset}.pth"
 
+    os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu)
+    os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 
     main(args)

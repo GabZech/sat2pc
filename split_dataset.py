@@ -5,7 +5,7 @@ import shutil
 import random
 
 # create a function to split the dataset into train, validation and test according to the ratio
-def split_dataset_into_train_val_test(data_dir, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1):
+def split_dataset_into_train_val_test(data_dir, train_ratio=0.7, val_ratio=0.15, test_ratio=0.15):
 
     train_path = os.path.join(data_dir, "train")
     val_path = os.path.join(data_dir, "val")
@@ -41,5 +41,5 @@ def split_dataset_into_train_val_test(data_dir, train_ratio=0.8, val_ratio=0.1, 
         shutil.move(os.path.join(data_dir, file + ".json"), os.path.join(test_path, "annotation", file + ".json"))
 
 
-split_dataset_into_train_val_test(data_dir, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1)
+split_dataset_into_train_val_test(data_dir)
 print("done")
